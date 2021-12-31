@@ -1,0 +1,46 @@
+syntax="proto3";
+
+package v1;
+
+option go_package = "github.com/ranxx/proxy/proto/clients/v1";
+
+option (options.openapiv2_swagger) = {
+  info: {
+    title: "Clients"
+    version: "1.0.0"
+    contact: {
+    name: "ranxx"
+    email: "ran.star@foxmail.com"
+    }
+  }
+  base_path: "/api/v1/clients"
+  consumes: "application/json"
+  produces: "application/json"
+};
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service Clients {
+  // 客户端列表
+  rpc ListClient (ListClientReq) returns (ListClientRsp) {
+    option (google.api.http) = {
+      get: "/client"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "客户端"
+    };
+  }
+}
+
+message Client {
+  int32  id = 1;
+  string machine = 2;
+  repeated string account = 3;
+}
+
+message ListClientReq {}
+
+message ListClientRsp {
+  repeated Client items = 1;
+}

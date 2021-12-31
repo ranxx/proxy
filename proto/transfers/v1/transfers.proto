@@ -1,0 +1,67 @@
+syntax="proto3";
+
+package v1;
+
+option go_package = "github.com/ranxx/proxy/proto/transfers/v1";
+
+option (options.openapiv2_swagger) = {
+  info: {
+    title: "Transfer"
+    version: "1.0.0"
+    contact: {
+    name: "ranxx"
+    email: "ran.star@foxmail.com"
+    }
+  }
+  base_path: "/api/v1/transfers"
+  consumes: "application/json"
+  produces: "application/json"
+};
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "proxy/proto/msg/v1/msg.proto";
+
+service Transfers {
+  // 代理端口列表
+  rpc ListTransfer (ListTransferReq) returns (ListTransferRsp) {
+    option (google.api.http) = {
+      get: "/transfer"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "代理"
+    };
+  }
+
+  // 新增代理端口
+  rpc AddTransfer (AddTransferReq) returns (AddTransferRsp) {
+    option (google.api.http) = {
+      post: "/transfer"
+      body: "*"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "代理"
+    };
+  }
+}
+
+message Transfer {
+  v1.NetworkType network = 2;
+  repeated v1.Addr laddr = 3;
+  v1.Addr raddr = 4;
+  string machine = 5;
+}
+
+message ListTransferReq {}
+
+message ListTransferRsp {
+  repeated Transfer items = 1;
+}
+
+message AddTransferReq {
+  repeated Transfer transfers = 1;
+}
+
+message AddTransferRsp {
+  v1.ClientBind item = 1;
+}

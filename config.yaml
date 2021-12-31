@@ -1,0 +1,32 @@
+
+app: proxy
+
+server:
+  ip: # nat.cutenss.com
+  port: 12341
+  apiPort: 12351
+
+client:
+  account: "ran.star@foxmail.com"
+
+tunnels:
+  - laddr:
+      ip:
+      port: 12322
+    raddr:
+      ip:
+      port: 22
+    match:
+      account: "ran.star@foxmail.com"
+      machine_prefix: "127.0.0.1"
+    network: 1
+  
+
+http:
+  port: 13333
+
+grpc:
+  port: 14444
+
+mysql: 
+  dsn: axing:axing@tcp(localhost:3306)/axing?charset=utf8&parseTime=true

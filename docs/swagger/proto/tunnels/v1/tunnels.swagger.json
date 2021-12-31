@@ -1,0 +1,213 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Tunnels",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ranxx",
+      "email": "ran.star@foxmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Tunnels"
+    }
+  ],
+  "basePath": "/api/v1/tunnels",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/tunnel": {
+      "post": {
+        "summary": "新增代理端口",
+        "operationId": "Tunnels_AddTunnel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddTunnelReq"
+            }
+          }
+        ],
+        "tags": [
+          "添加代理"
+        ]
+      }
+    },
+    "/tunnels": {
+      "get": {
+        "summary": "代理端口列表",
+        "operationId": "Tunnels_ListTunnel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "列表"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AddTunnelReq": {
+      "type": "object",
+      "properties": {
+        "transfers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Tunneler"
+          }
+        }
+      }
+    },
+    "v1AddTunnelRsp": {
+      "type": "object"
+    },
+    "v1Addr": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1ListTunnelRsp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Tunneler"
+          }
+        }
+      }
+    },
+    "v1Match": {
+      "type": "object",
+      "properties": {
+        "machine_prefix": {
+          "type": "string",
+          "title": "前缀"
+        },
+        "mechines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "具体的机器地址"
+        }
+      }
+    },
+    "v1NetworkType": {
+      "type": "string",
+      "enum": [
+        "HTTP",
+        "TCP",
+        "UDP"
+      ],
+      "default": "HTTP"
+    },
+    "v1Tunneler": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/v1NetworkType",
+          "title": "类型"
+        },
+        "laddr": {
+          "$ref": "#/definitions/v1Addr",
+          "title": "本地外网地址"
+        },
+        "raddr": {
+          "$ref": "#/definitions/v1Addr",
+          "title": "需要 代理的地址"
+        },
+        "match": {
+          "$ref": "#/definitions/v1Match",
+          "title": "匹配规则"
+        }
+      }
+    }
+  }
+}

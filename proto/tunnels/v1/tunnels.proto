@@ -1,0 +1,80 @@
+syntax="proto3";
+
+package v1;
+
+option go_package = "github.com/ranxx/proxy/proto/tunnels/v1";
+
+option (options.openapiv2_swagger) = {
+  info: {
+    title: "Tunnels"
+    version: "1.0.0"
+    contact: {
+    name: "ranxx"
+    email: "ran.star@foxmail.com"
+    }
+  }
+  base_path: "/api/v1/tunnels"
+  consumes: "application/json"
+  produces: "application/json"
+};
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "proxy/proto/msg/v1/msg.proto";
+
+service Tunnels {
+  // 代理端口列表
+  rpc ListTunnel (ListTunnelReq) returns (ListTunnelRsp) {
+    option (google.api.http) = {
+      get: "/tunnels"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "列表"
+    };
+  }
+
+  // 新增代理端口
+  rpc AddTunnel (AddTunnelReq) returns (AddTunnelRsp) {
+    option (google.api.http) = {
+      post: "/tunnel"
+      body: "*"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "添加代理"
+    };
+  }
+}
+
+message Match {
+  // 前缀
+  string machine_prefix = 1;
+  // 具体的机器地址
+  repeated string mechines = 2;
+}
+
+message Tunneler {
+  // 类型
+  v1.NetworkType network = 1;
+  // 本地外网地址
+  v1.Addr laddr = 2;
+  // 需要 代理的地址
+  v1.Addr raddr = 3;
+  // 匹配规则
+  Match match = 4;
+}
+
+message ListTunnelReq {
+  int64 offset = 1;
+  int64 limit = 2;
+}
+
+message ListTunnelRsp {
+  int64 total = 1;
+  repeated Tunneler items = 2;
+}
+
+message AddTunnelReq {
+  repeated Tunneler transfers = 1;
+}
+
+message AddTunnelRsp {}

@@ -1,0 +1,158 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Users",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ranxx",
+      "email": "ran.star@foxmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ],
+  "basePath": "/api/v1/users",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "登录",
+        "operationId": "Users_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "登录"
+        ]
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "注册",
+        "operationId": "Users_Register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RegisterRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterReq"
+            }
+          }
+        ],
+        "tags": [
+          "注册"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1LoginReq": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "邮箱"
+        },
+        "passwd": {
+          "type": "string",
+          "title": "密码"
+        }
+      }
+    },
+    "v1LoginRsp": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "title": "验证"
+        }
+      }
+    },
+    "v1RegisterReq": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "邮箱"
+        },
+        "passwd": {
+          "type": "string",
+          "title": "密码"
+        }
+      }
+    },
+    "v1RegisterRsp": {
+      "type": "object"
+    }
+  }
+}

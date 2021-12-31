@@ -1,0 +1,68 @@
+syntax="proto3";
+
+package v1;
+
+option go_package = "github.com/ranxx/proxy/proto/users/v1";
+
+option (options.openapiv2_swagger) = {
+  info: {
+    title: "Users"
+    version: "1.0.0"
+    contact: {
+    name: "ranxx"
+    email: "ran.star@foxmail.com"
+    }
+  }
+  base_path: "/api/v1/users"
+  consumes: "application/json"
+  produces: "application/json"
+};
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service Users {
+  // 注册
+  rpc Register (RegisterReq) returns (RegisterRsp) {
+    option (google.api.http) = {
+      post: "/register"
+      body: "*"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "注册"
+    };
+  }
+
+  // 登录
+  rpc Login (LoginReq) returns (LoginRsp) {
+    option (google.api.http) = {
+      post: "/login"
+      body: "*"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "登录"
+    };
+  }
+}
+
+
+message RegisterReq {
+  // 邮箱
+  string email  = 1;
+  // 密码
+  string passwd = 2;
+}
+
+message RegisterRsp {}
+
+message LoginReq {
+  // 邮箱
+  string email = 1;
+  // 密码
+  string passwd = 2;
+}
+
+message LoginRsp {
+  // 验证
+  string token = 2;
+}

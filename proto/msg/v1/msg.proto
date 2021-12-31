@@ -1,0 +1,82 @@
+syntax="proto3";
+
+package v1;
+
+option go_package = "github.com/ranxx/proxy/proto/msg/v1";
+
+enum NetworkType {
+    HTTP = 0;
+    TCP  = 1;
+    UDP = 2;
+}
+
+enum MsgType {
+    // 消息
+    None  = 0;
+    // 错误
+    Error = 1;
+    // 心跳
+    Heartbeat = 3;
+    // 客户端绑定
+    Clientbind = 4;
+}
+
+message Options {
+}
+
+message Msg {
+    string  network = 1;
+    string  addr    = 2;
+    MsgType type    = 3;
+    bytes   body    = 4;
+}
+
+message Addr {
+    string  ip = 1;
+    int32 port = 2;
+}
+
+message Header {
+    string          key   = 1;
+    repeated string value = 2;
+}
+
+message HTTPBody {
+    string          addr   = 1;
+    Addr            Laddr  = 2;
+    string          url    = 3;
+    string          method = 4;
+    bytes           body   = 5;
+    repeated Header header = 6;
+}
+
+message TCPBody {
+    // string addr  = 1;
+    int64 rid    = 1;
+    Addr  laddr  = 2;
+    Addr  raddr  = 3;
+    bytes body   = 4;
+    // 0:走bind方式；1:走代理方式
+    int32 type   = 5;
+}
+
+// 绑定请求
+message TransferBind {
+    int64 id = 1;
+}
+
+// 连接错误请求 
+message ErrorBody {
+    string laddr = 1;
+    string raddr   = 2;
+    string err      = 3;
+}
+
+message HeartBeat {
+    int64 now = 1;
+}
+
+message ClientBind {
+    // 绑定的账户
+    string account = 1;
+}

@@ -1,0 +1,188 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Transfer",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ranxx",
+      "email": "ran.star@foxmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Transfers"
+    }
+  ],
+  "basePath": "/api/v1/transfers",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/transfer": {
+      "get": {
+        "summary": "代理端口列表",
+        "operationId": "Transfers_ListTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTransferRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "代理"
+        ]
+      },
+      "post": {
+        "summary": "新增代理端口",
+        "operationId": "Transfers_AddTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddTransferRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddTransferReq"
+            }
+          }
+        ],
+        "tags": [
+          "代理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AddTransferReq": {
+      "type": "object",
+      "properties": {
+        "transfers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transfer"
+          }
+        }
+      }
+    },
+    "v1AddTransferRsp": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/v1ClientBind"
+        }
+      }
+    },
+    "v1Addr": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1ClientBind": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "type": "string",
+          "title": "绑定的账户"
+        }
+      }
+    },
+    "v1ListTransferRsp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transfer"
+          }
+        }
+      }
+    },
+    "v1NetworkType": {
+      "type": "string",
+      "enum": [
+        "HTTP",
+        "TCP",
+        "UDP"
+      ],
+      "default": "HTTP"
+    },
+    "v1Transfer": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/v1NetworkType"
+        },
+        "laddr": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Addr"
+          }
+        },
+        "raddr": {
+          "$ref": "#/definitions/v1Addr"
+        },
+        "machine": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
