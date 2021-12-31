@@ -3,14 +3,8 @@ package tunnels
 import (
 	"context"
 	"fmt"
-	"net/http"
 
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
-	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/internal/model"
-	"github.com/ranxx/proxy/kit/tunnels/v1/svc"
-	"github.com/ranxx/proxy/pkg/components"
 	msg "github.com/ranxx/proxy/proto/msg/v1"
 	v1 "github.com/ranxx/proxy/proto/tunnels/v1"
 	"github.com/ranxx/proxy/tunnels/store"
@@ -27,18 +21,18 @@ func NewTunnels(local store.Tunnels) *Tunnels {
 	return &Tunnels{local: local}
 }
 
-// ProvideHTTP http
-func (t *Tunnels) ProvideHTTP(router *mux.Router) {
-	// 提供 router
-	h := svc.MakeHTTPHandler(svc.Endpoints{
-		ListTunnelEndpoint: svc.MakeListTunnelEndpoint(t),
-		AddTunnelEndpoint:  svc.MakeAddTunnelEndpoint(t),
-	},
-		components.EncodeHTTPGenericResponse,
-		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
-	)
-	router.PathPrefix("/tunnels/v1").Handler(http.StripPrefix(constant.APIPrefix+"/tunnels/v1", h))
-}
+// // ProvideHTTP http
+// func (t *Tunnels) ProvideHTTP(router *mux.Router) {
+// 	// 提供 router
+// 	h := svc.MakeHTTPHandler(svc.Endpoints{
+// 		ListTunnelEndpoint: svc.MakeListTunnelEndpoint(t),
+// 		AddTunnelEndpoint:  svc.MakeAddTunnelEndpoint(t),
+// 	},
+// 		components.EncodeHTTPGenericResponse,
+// 		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
+// 	)
+// 	router.PathPrefix("/tunnels/v1").Handler(http.StripPrefix(constant.APIPrefix+"/tunnels/v1", h))
+// }
 
 // ProvideGRPC grpc
 func (t *Tunnels) ProvideGRPC(server *grpc.Server) {

@@ -2,16 +2,10 @@ package users
 
 import (
 	"context"
-	"net/http"
 
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gogo/protobuf/proto"
-	"github.com/gorilla/mux"
-	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/errors"
 	"github.com/ranxx/proxy/internal/model"
-	"github.com/ranxx/proxy/kit/users/v1/svc"
-	"github.com/ranxx/proxy/pkg/components"
 	v1 "github.com/ranxx/proxy/proto/users/v1"
 	"github.com/ranxx/proxy/users/store"
 	"google.golang.org/grpc"
@@ -27,18 +21,18 @@ func NewUsers(local store.Users) *Users {
 	return &Users{local: local}
 }
 
-// ProvideHTTP http
-func (u *Users) ProvideHTTP(router *mux.Router) {
-	// 提供 router
-	h := svc.MakeHTTPHandler(svc.Endpoints{
-		RegisterEndpoint: svc.MakeRegisterEndpoint(u),
-		LoginEndpoint:    svc.MakeLoginEndpoint(u),
-	},
-		components.EncodeHTTPGenericResponse,
-		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
-	)
-	router.PathPrefix("/users/v1").Handler(http.StripPrefix(constant.APIPrefix+"/users/v1", h))
-}
+// // ProvideHTTP http
+// func (u *Users) ProvideHTTP(router *mux.Router) {
+// 	// 提供 router
+// 	h := svc.MakeHTTPHandler(svc.Endpoints{
+// 		RegisterEndpoint: svc.MakeRegisterEndpoint(u),
+// 		LoginEndpoint:    svc.MakeLoginEndpoint(u),
+// 	},
+// 		components.EncodeHTTPGenericResponse,
+// 		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
+// 	)
+// 	router.PathPrefix("/users/v1").Handler(http.StripPrefix(constant.APIPrefix+"/users/v1", h))
+// }
 
 // ProvideGRPC grpc
 func (u *Users) ProvideGRPC(server *grpc.Server) {

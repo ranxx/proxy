@@ -43,9 +43,9 @@ func Start() {
 
 	// 初始化 http
 	root := mux.NewRouter()
-	router := root.PathPrefix("/api").Subrouter()
-	_users.ProvideHTTP(router)
-	_tunnes.ProvideHTTP(router)
+	//router := root.PathPrefix("/api").Subrouter()
+	// _users.ProvideHTTP(router)
+	// _tunnes.ProvideHTTP(router)
 	root.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
 		m, _ := route.GetMethods()

@@ -7,7 +7,7 @@ server:
   apiPort: 12351
 
 client:
-  account: "ran.star@foxmail.com"
+  account:
 
 tunnels:
   - laddr:
@@ -17,10 +17,9 @@ tunnels:
       ip:
       port: 22
     match:
-      account: "ran.star@foxmail.com"
+      account:
       machine_prefix: "127.0.0.1"
     network: 1
-  
 
 http:
   port: 13333
