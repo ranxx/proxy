@@ -6,6 +6,9 @@ server:
   port: 12341
   apiPort: 12351
 
+auth:
+  key: axingjwt12341
+
 client:
   account:
 

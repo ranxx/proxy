@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/internal/model"
 )
 
@@ -18,8 +19,8 @@ type Users interface {
 }
 
 // NewUsers ...
-func NewUsers(db *gorm.DB) Users {
-	return &localUsers{db: db}
+func NewUsers() Users {
+	return &localUsers{db: config.GetDB()}
 }
 
 type localUsers struct {

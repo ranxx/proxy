@@ -26,7 +26,7 @@ service Tunnels {
   // 代理端口列表
   rpc ListTunnel (ListTunnelReq) returns (ListTunnelRsp) {
     option (google.api.http) = {
-      get: "/tunnels"
+      get: "/list"
     };
     option (options.openapiv2_operation) = {
       tags: "列表"

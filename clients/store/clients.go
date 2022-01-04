@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/internal/model"
 )
 
@@ -18,8 +19,8 @@ type Clients interface {
 }
 
 // NewClients ...
-func NewClients(db *gorm.DB) Clients {
-	return &localClients{db: db}
+func NewClients() Clients {
+	return &localClients{db: config.GetDB()}
 }
 
 type localClients struct {

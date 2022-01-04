@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/internal/model"
 	"github.com/ranxx/proxy/pkg/utils"
 )
@@ -19,8 +20,8 @@ type Tunnels interface {
 }
 
 // NewTunnels ...
-func NewTunnels(db *gorm.DB) Tunnels {
-	return &localTunnels{db: db}
+func NewTunnels() Tunnels {
+	return &localTunnels{db: config.GetDB()}
 }
 
 type localTunnels struct {

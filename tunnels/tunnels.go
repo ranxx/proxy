@@ -21,19 +21,6 @@ func NewTunnels(local store.Tunnels) *Tunnels {
 	return &Tunnels{local: local}
 }
 
-// // ProvideHTTP http
-// func (t *Tunnels) ProvideHTTP(router *mux.Router) {
-// 	// 提供 router
-// 	h := svc.MakeHTTPHandler(svc.Endpoints{
-// 		ListTunnelEndpoint: svc.MakeListTunnelEndpoint(t),
-// 		AddTunnelEndpoint:  svc.MakeAddTunnelEndpoint(t),
-// 	},
-// 		components.EncodeHTTPGenericResponse,
-// 		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
-// 	)
-// 	router.PathPrefix("/tunnels/v1").Handler(http.StripPrefix(constant.APIPrefix+"/tunnels/v1", h))
-// }
-
 // ProvideGRPC grpc
 func (t *Tunnels) ProvideGRPC(server *grpc.Server) {
 	v1.RegisterTunnelsServer(server, t)
@@ -60,23 +47,6 @@ func (t *Tunnels) ListTunnel(ctx context.Context, req *v1.ListTunnelReq) (*v1.Li
 
 // AddTunnel 新增代理端口
 func (t *Tunnels) AddTunnel(ctx context.Context, req *v1.AddTunnelReq) (*v1.AddTunnelRsp, error) {
-	// // 本地
-	// user, exists, err := u.local.Get(ctx, req.Email)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if !exists {
-	// 	return nil, errors.NewErrCode(errors.ErrNotFound, "用户不存在")
-	// }
-
-	// // 比对 passwd
-	// if user.Passwd != req.Passwd {
-	// 	return nil, errors.NewErrCode(errors.ErrPasswd, "密码错误")
-	// }
-
-	// return &v1.LoginRsp{Token: "xxx"}, nil
-
 	account := "ran.star@foxmail.com"
 
 	// 重复的

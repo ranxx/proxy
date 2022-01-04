@@ -21,40 +21,7 @@
     "application/json"
   ],
   "paths": {
-    "/tunnel": {
-      "post": {
-        "summary": "新增代理端口",
-        "operationId": "Tunnels_AddTunnel",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1AddTunnelRsp"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1AddTunnelReq"
-            }
-          }
-        ],
-        "tags": [
-          "添加代理"
-        ]
-      }
-    },
-    "/tunnels": {
+    "/list": {
       "get": {
         "summary": "代理端口列表",
         "operationId": "Tunnels_ListTunnel",
@@ -90,6 +57,39 @@
         ],
         "tags": [
           "列表"
+        ]
+      }
+    },
+    "/tunnel": {
+      "post": {
+        "summary": "新增代理端口",
+        "operationId": "Tunnels_AddTunnel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddTunnelReq"
+            }
+          }
+        ],
+        "tags": [
+          "添加代理"
         ]
       }
     }

@@ -8,6 +8,8 @@ import (
 	"github.com/ranxx/observer"
 	"github.com/ranxx/proxy/internal/model"
 	proto "github.com/ranxx/proxy/proto/msg/v1"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"gopkg.in/yaml.v3"
 )
@@ -16,6 +18,7 @@ import (
 type Config struct {
 	App     string   `json:"app" yaml:"app"`
 	Server  Server   `json:"server" yaml:"server"`
+	Auth    Auth     `json:"auth" yaml:"auth"`
 	Client  Client   `json:"client" yaml:"client"`
 	Tunnels []Tunnel `json:"tunnels" yaml:"tunnels"`
 	Mysql   Mysql    `json:"mysql" yaml:"mysql"`
@@ -28,6 +31,11 @@ type Server struct {
 	IP      string `json:"ip" yaml:"ip"`
 	Port    int    `json:"port" yaml:"port"`
 	APIPort int    `json:"apiPort" yaml:"apiPort"`
+}
+
+// Auth auth
+type Auth struct {
+	Key string `json:"key" yaml:"key"`
 }
 
 // Client 客户端配置
@@ -64,6 +72,8 @@ var (
 	Cfg *Config
 
 	Obs = observer.NewObserver()
+
+	_db *gorm.DB
 
 	// 解析函数
 	parser map[string]func(file string) *Config = map[string]func(file string) *Config{
@@ -114,4 +124,25 @@ func ParseFile(file string) *Config {
 		return ParseYamlFile(file)
 	}
 	return v(file)
+}
+
+// GetConfig  config
+func GetConfig() *Config {
+	return Cfg
+}
+
+// GetDB db
+func GetDB() *gorm.DB {
+	return _db
+}
+
+// Init init
+func Init() {
+	// 初始化 db
+	db, err := gorm.Open(mysql.Open(Cfg.Mysql.Dsn))
+	if err != nil {
+		panic(err)
+	}
+	db = db.Debug()
+	_db = db
 }

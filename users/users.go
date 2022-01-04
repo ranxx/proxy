@@ -2,10 +2,13 @@ package users
 
 import (
 	"context"
+	"time"
 
-	"github.com/gogo/protobuf/proto"
+	gjwt "github.com/golang-jwt/jwt"
+	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/errors"
 	"github.com/ranxx/proxy/internal/model"
+	"github.com/ranxx/proxy/pkg/jwt"
 	v1 "github.com/ranxx/proxy/proto/users/v1"
 	"github.com/ranxx/proxy/users/store"
 	"google.golang.org/grpc"
@@ -21,19 +24,6 @@ func NewUsers(local store.Users) *Users {
 	return &Users{local: local}
 }
 
-// // ProvideHTTP http
-// func (u *Users) ProvideHTTP(router *mux.Router) {
-// 	// 提供 router
-// 	h := svc.MakeHTTPHandler(svc.Endpoints{
-// 		RegisterEndpoint: svc.MakeRegisterEndpoint(u),
-// 		LoginEndpoint:    svc.MakeLoginEndpoint(u),
-// 	},
-// 		components.EncodeHTTPGenericResponse,
-// 		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
-// 	)
-// 	router.PathPrefix("/users/v1").Handler(http.StripPrefix(constant.APIPrefix+"/users/v1", h))
-// }
-
 // ProvideGRPC grpc
 func (u *Users) ProvideGRPC(server *grpc.Server) {
 	v1.RegisterUsersServer(server, u)
@@ -46,8 +36,6 @@ func (u *Users) Register(ctx context.Context, req *v1.RegisterReq) (*v1.Register
 	if err != nil {
 		return nil, err
 	}
-
-	proto.Marshal(req)
 
 	if exists {
 		return nil, errors.NewErrCode(errors.ErrExists, "用户已存在")
@@ -74,5 +62,16 @@ func (u *Users) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, erro
 		return nil, errors.NewErrCode(errors.ErrPasswd, "密码错误")
 	}
 
-	return &v1.LoginRsp{Token: "xxx"}, nil
+	key := []byte(config.GetConfig().Auth.Key)
+
+	token, err := jwt.Generate(key, &jwt.Claim{
+		StandardClaims: gjwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			Issuer:    "proxy",
+		},
+		UserID:   user.ID,
+		Acccount: user.Email,
+	}, nil)
+
+	return &v1.LoginRsp{Token: token}, nil
 }
