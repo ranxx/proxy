@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/ranxx/proxy/constant"
-	proto "github.com/ranxx/proxy/proto/msg/v1"
+	msg "github.com/ranxx/proxy/proto/msg/v1"
 	"github.com/ranxx/ztcp/conn"
 	"github.com/ranxx/ztcp/conner"
 )
@@ -16,13 +16,13 @@ import (
 // Client ...
 type Client struct {
 	logPrefix             string
-	body                  *proto.TCPBody
+	body                  *msg.TCPBody
 	once                  *sync.Once
 	localConn, remoteConn conner.Conner
 }
 
 // NewClient ...
-func NewClient(logPrefix string, body *proto.TCPBody) *Client {
+func NewClient(logPrefix string, body *msg.TCPBody) *Client {
 	return &Client{
 		logPrefix: logPrefix,
 		body:      body,
@@ -50,7 +50,7 @@ func (c *Client) Start() {
 
 	log.Println(c.logPrefix, fmt.Sprintf("%s -> %s", remoteConn.RemoteAddr(), localConn.RemoteAddr()))
 
-	bind := &proto.TransferBind{Id: c.body.Rid}
+	bind := &msg.TransferBind{Id: c.body.Rid}
 	if _, err := c.remoteConn.Writer().WriteValueWithID(constant.Transfer, bind); err != nil {
 		log.Println(c.logPrefix, "写入bind消息失败", err)
 		return

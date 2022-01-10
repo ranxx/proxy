@@ -47,7 +47,8 @@ func Convert2Response(err error) Response {
 }
 
 // NewNotFound msg
-func NewNotFound(msg string) *ErrCode {
+func NewNotFound(format string, a ...interface{}) *ErrCode {
+	msg := fmt.Sprintf(format, a...)
 	return newErrorCode(ErrNotFound, msg)
 }
 

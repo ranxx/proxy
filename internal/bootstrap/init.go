@@ -20,8 +20,6 @@ import (
 
 // Start ...
 func Start() {
-	config.Init()
-
 	db := config.GetDB()
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Tunnel{})
@@ -35,17 +33,6 @@ func Start() {
 	usersV1.RegisterUsersServer(gserver, _users)
 	tunnelsV1.RegisterTunnelsServer(gserver, _tunnes)
 
-	// // 初始化 http
-	// root := mux.NewRouter()
-	// //router := root.PathPrefix("/api").Subrouter()
-	// // _users.ProvideHTTP(router)
-	// // _tunnes.ProvideHTTP(router)
-	// root.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-	// 	tpl, _ := route.GetPathTemplate()
-	// 	m, _ := route.GetMethods()
-	// 	log.Printf("walk: %s %#v\n", tpl, m)
-	// 	return nil
-	// })
 	root := apiserver.Router()
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GRPC.Port))
@@ -62,7 +49,6 @@ func Start() {
 	}()
 
 	go func() {
-
 		defer wait.Done()
 		fmt.Println(http.ListenAndServe(fmt.Sprintf(":%d", config.Cfg.HTTP.Port), root))
 	}()

@@ -8,20 +8,20 @@ import (
 )
 
 // TunnelStatus 状态
-type TunnelStatus int8
+type TunnelStatus v1.Status
 
-// tunnel 状态
-const (
-	TunnelStatusStop = (TunnelStatus)(0) + iota
-	TunnelStatusRun
-	TunnelStatusDel
-)
+// // tunnel 状态
+// const (
+// 	TunnelStatusStop = (TunnelStatus)(0) + iota
+// 	TunnelStatusRun
+// 	TunnelStatusDel
+// )
 
 // Tunnel ...
 type Tunnel struct {
 	Base
 
-	Account string            `gorm:"colume:account;size:64;comment:用户" json:"account"`
+	UserID  int64             `gorm:"colume:user_id;type:bigint(20);comment:用户id" json:"user_id"`
 	Laddr   *Addr             `gorm:"colume:laddr;type:text;comment:本地地址" json:"laddr"`
 	Raddr   *Addr             `gorm:"colume:raddr;type:text;comment:远端地址" json:"raddr"`
 	Network proto.NetworkType `gorm:"colume:network;type:int;comment:网络类型" json:"network"`
@@ -33,12 +33,6 @@ type Tunnel struct {
 func (*Tunnel) TableName() string {
 	return "tunnel"
 }
-
-// // TunnelMatch 匹配
-// type TunnelMatch struct {
-// 	MachinePrefix string   `json:"machine_prefix" yaml:"machine_prefix"`
-// 	Machines      []string `json:"machines" yaml:"machines"`
-// }
 
 // TunnelMatch 匹配
 type TunnelMatch v1.Match
@@ -53,23 +47,18 @@ func (t *TunnelMatch) Scan(value interface{}) error {
 	return jsonScan(value, t)
 }
 
-// TransferMatch matching and 关系
-type TransferMatch struct {
-	Acccount      string   `json:"account" yaml:"account"`
-	Machines      []string `json:"machines" yaml:"machines"`
-	MachinePrefix string   `json:"machine_prefix" yaml:"machine_prefix"`
-}
+// // TunnelConfig config
+// type TunnelConfig struct {
+// 	Laddr   proto.Addr        `json:"laddr" yaml:"laddr"`
+// 	Raddr   proto.Addr        `json:"raddr" yaml:"raddr"`
+// 	Match   TunnelMatch       `json:"match" yaml:"match"`
+// 	Network proto.NetworkType `json:"network" yaml:"network"`
 
-// TransferConfig config
-type TransferConfig struct {
-	Laddr   proto.Addr        `json:"laddr" yaml:"laddr"`
-	Raddr   proto.Addr        `json:"raddr" yaml:"raddr"`
-	Match   TransferMatch     `json:"match" yaml:"match"`
-	Network proto.NetworkType `json:"network" yaml:"network"`
-}
+// 	Account string            `json:"account" yaml:"account"`
+// }
 
-// TransferInfo info
-type TransferInfo struct {
-	Index int64 `json:"index"`
-	TransferConfig
-}
+// // TransferInfo info
+// type TransferInfo struct {
+// 	Index int64 `json:"index"`
+// 	TunnelConfig
+// }

@@ -13,7 +13,7 @@ option (options.openapiv2_swagger) = {
     email: "ran.star@foxmail.com"
     }
   }
-  base_path: "/api/v1/users"
+  base_path: "/api/users/v1"
   consumes: "application/json"
   produces: "application/json"
 };

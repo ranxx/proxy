@@ -13,7 +13,7 @@ option (options.openapiv2_swagger) = {
     email: "ran.star@foxmail.com"
     }
   }
-  base_path: "/api/v1/tunnels"
+  base_path: "/api/tunnels/v1"
   consumes: "application/json"
   produces: "application/json"
 };
@@ -43,24 +43,69 @@ service Tunnels {
       tags: "添加代理"
     };
   }
+
+  // 开启
+  rpc Start (StartTunnelReq) returns (StartTunnelRsp) {
+    option (google.api.http) = {
+      put: "/start/{id}"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "开始"
+    };
+  }
+
+  // 停止
+  rpc Stop (StopTunnelReq) returns (StopTunnelRsp) {
+    option (google.api.http) = {
+      put: "/stop/{id}"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "停止"
+    };
+  }
+
+  // 删除
+  rpc Delete (DeleteTunnelReq) returns (DeleteTunnelRsp) {
+    option (google.api.http) = {
+      delete: "/tunnel/{id}"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "删除代理"
+    };
+  }
 }
 
+// 匹配
 message Match {
   // 前缀
   string machine_prefix = 1;
   // 具体的机器地址
-  repeated string mechines = 2;
+  repeated string machines = 2;
+}
+
+// 状态
+enum Status {
+  _tunnels = 0;
+  // 停止
+  Stop = 1;
+  // 运行
+  Run = 2;
+  // 删除
+  Del = 3;
 }
 
 message Tunneler {
+  int64 id = 1;
   // 类型
-  v1.NetworkType network = 1;
+  v1.NetworkType network = 2;
   // 本地外网地址
-  v1.Addr laddr = 2;
+  v1.Addr laddr = 3;
   // 需要 代理的地址
-  v1.Addr raddr = 3;
+  v1.Addr raddr = 4;
   // 匹配规则
-  Match match = 4;
+  Match match = 5;
+  // 状态
+  Status status = 6;
 }
 
 message ListTunnelReq {
@@ -78,3 +123,21 @@ message AddTunnelReq {
 }
 
 message AddTunnelRsp {}
+
+message StartTunnelReq {
+  int64 id = 1;
+}
+
+message StartTunnelRsp {}
+
+message StopTunnelReq {
+  int64 id = 1;
+}
+
+message StopTunnelRsp {}
+
+message DeleteTunnelReq {
+  int64 id = 1;
+}
+
+message DeleteTunnelRsp {}

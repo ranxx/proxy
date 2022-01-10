@@ -42,6 +42,5 @@ func (l *localUsers) Get(ctx context.Context, email string) (*model.User, bool, 
 }
 
 func (l *localUsers) Create(ctx context.Context, item *model.User) error {
-
 	return l.db.Model(&model.User{}).Create(item).Error
 }

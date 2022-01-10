@@ -10,8 +10,9 @@ import (
 
 	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/constant"
+	"github.com/ranxx/proxy/internal/event"
 
-	proto "github.com/ranxx/proxy/proto/msg/v1"
+	msg "github.com/ranxx/proxy/proto/msg/v1"
 	"github.com/ranxx/ztcp/conn"
 	"github.com/ranxx/ztcp/conner"
 	"github.com/ranxx/ztcp/dispatch"
@@ -74,8 +75,8 @@ func (c *Client) Start() error {
 	c.conn = conn.NewConn(0, cc, extra, conn.WithDispatcher(dispatch.DefaultDispatcher(clientRouters(c))))
 
 	// 发送客户端绑定事件
-	c.conn.Writer().WriteValueWithID(constant.ClientBind, &proto.ClientBind{
-		Account: config.Cfg.Client.Account,
+	c.conn.Writer().WriteValueWithID(constant.ClientBind, &msg.ClientBind{
+		Id: config.Cfg.Client.UserID,
 	})
 
 	c.conn.Start()
@@ -92,19 +93,19 @@ func (c *Client) dail() (net.Conn, error) {
 // TCPHandle tcp 消息
 func (c *Client) TCPHandle() handle.Handler {
 	return handle.WrapHandler(func(c context.Context, r *request.Request) {
-		req := &proto.TCPBody{}
+		req := &msg.TCPBody{}
 		if err := req.Unmarshal(r.M.GetData()); err != nil {
 			log.Println("client", "tcp事件", "解析 req 失败", fmt.Sprintf("err:%s", err))
 			return
 		}
-		config.Obs.Publish("create_tcp_tunnel_client_event", req)
+		event.PublishCreateTCPTunnelClientEvent(req)
 	})
 }
 
 // HeartBeatHandle 心跳事件
 func (c *Client) HeartBeatHandle() handle.Handler {
 	return handle.WrapHandler(func(c context.Context, r *request.Request) {
-		req := &proto.HeartBeat{}
+		req := &msg.HeartBeat{}
 		if err := req.Unmarshal(r.M.GetData()); err != nil {
 			log.Println("client", "心跳事件", "解析 req 失败", fmt.Sprintf("err:%s", err))
 			return

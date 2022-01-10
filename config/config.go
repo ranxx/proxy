@@ -40,15 +40,17 @@ type Auth struct {
 
 // Client 客户端配置
 type Client struct {
-	Account string `json:"account" yaml:"account"`
+	UserID int64 `json:"user_id" yaml:"user_id"`
+	// Account string `json:"account" yaml:"account"`
 }
 
 // Tunnel 隧道
 type Tunnel struct {
-	Laddr   proto.Addr          `json:"laddr" yaml:"laddr"`
-	Raddr   proto.Addr          `json:"raddr" yaml:"raddr"`
-	Match   model.TransferMatch `json:"match" yaml:"match"`
-	Network proto.NetworkType   `json:"network" yaml:"network"`
+	Laddr   proto.Addr        `json:"laddr" yaml:"laddr"`
+	Raddr   proto.Addr        `json:"raddr" yaml:"raddr"`
+	Match   model.TunnelMatch `json:"match" yaml:"match"`
+	Network proto.NetworkType `json:"network" yaml:"network"`
+	Account string            `json:"account" yaml:"account"`
 }
 
 // Mysql mysql
@@ -143,6 +145,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+	db.CreateBatchSize = 1024
 	db = db.Debug()
 	_db = db
 }

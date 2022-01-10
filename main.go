@@ -10,5 +10,11 @@ func init() {
 }
 
 func main() {
+
+	// go func() {
+	// 	// 启动ws
+	// 	net.Listen("tcp", ":1")
+	// }
+
 	bootstrap.Start()
 }

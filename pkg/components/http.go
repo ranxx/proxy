@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 
 	ggJsonPB "github.com/gogo/protobuf/jsonpb"
 	ggProto "github.com/gogo/protobuf/proto"
@@ -67,32 +65,4 @@ func responseToServer(ctx context.Context, resp errors.Response, w http.Response
 	}
 	_, err = w.Write(data)
 	return err
-}
-
-// StripPrefix  ...
-func StripPrefix(prefix string, h http.Handler) http.Handler {
-	if prefix == "" {
-		return h
-	}
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		p := strings.TrimPrefix(r.URL.Path, prefix)
-		rp := strings.TrimPrefix(r.URL.RawPath, prefix)
-		if index := strings.Index(r.URL.Path, prefix); index >= 0 {
-			p = r.URL.Path[index+len(prefix):]
-		}
-		if index := strings.Index(r.URL.RawPath, prefix); index >= 0 {
-			rp = r.URL.RawPath[index+len(prefix):]
-		}
-		if len(p) < len(r.URL.Path) && (r.URL.RawPath == "" || len(rp) < len(r.URL.RawPath)) {
-			r2 := new(http.Request)
-			*r2 = *r
-			r2.URL = new(url.URL)
-			*r2.URL = *r.URL
-			r2.URL.Path = p
-			r2.URL.RawPath = rp
-			h.ServeHTTP(w, r2)
-		} else {
-			http.NotFound(w, r)
-		}
-	})
 }

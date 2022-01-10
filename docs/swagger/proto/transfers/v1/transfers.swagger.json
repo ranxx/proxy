@@ -138,8 +138,9 @@
     "v1ClientBind": {
       "type": "object",
       "properties": {
-        "account": {
+        "id": {
           "type": "string",
+          "format": "int64",
           "title": "绑定的账户"
         }
       }

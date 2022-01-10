@@ -13,7 +13,7 @@
       "name": "Tunnels"
     }
   ],
-  "basePath": "/api/v1/tunnels",
+  "basePath": "/api/tunnels/v1",
   "consumes": [
     "application/json"
   ],
@@ -35,7 +35,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -60,6 +60,70 @@
         ]
       }
     },
+    "/start/{id}": {
+      "put": {
+        "summary": "开启",
+        "operationId": "Tunnels_Start",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "开始"
+        ]
+      }
+    },
+    "/stop/{id}": {
+      "put": {
+        "summary": "停止",
+        "operationId": "Tunnels_Stop",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StopTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "停止"
+        ]
+      }
+    },
     "/tunnel": {
       "post": {
         "summary": "新增代理端口",
@@ -74,7 +138,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -92,19 +156,42 @@
           "添加代理"
         ]
       }
+    },
+    "/tunnel/{id}": {
+      "delete": {
+        "summary": "删除",
+        "operationId": "Tunnels_Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTunnelRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "删除代理"
+        ]
+      }
     }
   },
   "definitions": {
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
+    "googlerpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -121,6 +208,15 @@
           }
         }
       }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
     },
     "v1AddTunnelReq": {
       "type": "object",
@@ -148,6 +244,9 @@
         }
       }
     },
+    "v1DeleteTunnelRsp": {
+      "type": "object"
+    },
     "v1ListTunnelRsp": {
       "type": "object",
       "properties": {
@@ -170,14 +269,15 @@
           "type": "string",
           "title": "前缀"
         },
-        "mechines": {
+        "machines": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "title": "具体的机器地址"
         }
-      }
+      },
+      "title": "匹配"
     },
     "v1NetworkType": {
       "type": "string",
@@ -188,9 +288,31 @@
       ],
       "default": "HTTP"
     },
+    "v1StartTunnelRsp": {
+      "type": "object"
+    },
+    "v1Status": {
+      "type": "string",
+      "enum": [
+        "_tunnels",
+        "Stop",
+        "Run",
+        "Del"
+      ],
+      "default": "_tunnels",
+      "description": "- Stop: 停止\n - Run: 运行\n - Del: 删除",
+      "title": "状态"
+    },
+    "v1StopTunnelRsp": {
+      "type": "object"
+    },
     "v1Tunneler": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
         "network": {
           "$ref": "#/definitions/v1NetworkType",
           "title": "类型"
@@ -206,6 +328,10 @@
         "match": {
           "$ref": "#/definitions/v1Match",
           "title": "匹配规则"
+        },
+        "status": {
+          "$ref": "#/definitions/v1Status",
+          "title": "状态"
         }
       }
     }

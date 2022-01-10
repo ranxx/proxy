@@ -6,6 +6,7 @@ import (
 
 	// "github.com/ranxx/proxy/api"
 	"github.com/ranxx/proxy/config"
+	"github.com/ranxx/proxy/internal/bootstrap"
 	"github.com/ranxx/proxy/pkg/utils"
 	"github.com/ranxx/proxy/service/service"
 	"github.com/ranxx/proxy/service/tunnel"
@@ -38,9 +39,12 @@ eg:
 			if !cmd.Flag("api-port").Changed {
 				*apiPort = config.Cfg.Server.APIPort
 			}
+
+			config.Init()
+
 			// 开启 tunnel
 			go func() {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 1)
 				tunnel.NewManager()
 			}()
 
@@ -49,15 +53,16 @@ eg:
 
 			// 自动开启 api
 			go func() {
+				bootstrap.Start()
 				// time.Sleep(time.Second * 2)
 				// e := api.Init()
 				// log.Println("starting api", "port", fmt.Sprintf(":%d", *apiPort))
 				// log.Println(http.ListenAndServe(fmt.Sprintf(":%d", *apiPort), e))
 
-				// tunnelTCP := tcp.NewServer(model.TransferConfig{
+				// tunnelTCP := tcp.NewServer(model.Tunnel{
 				// 	Laddr: v1.Addr{Ip: "", Port: 12333},
 				// 	Raddr: v1.Addr{Ip: "", Port: 22},
-				// 	Match: model.TransferMatch{
+				// 	Match: model.Tunnel{
 				// 		Acccount:      "ran.star@foxmail.com",
 				// 		MachinePrefix: "127.0.0.1:",
 				// 	},

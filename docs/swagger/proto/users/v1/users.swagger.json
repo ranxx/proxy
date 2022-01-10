@@ -13,7 +13,7 @@
       "name": "Users"
     }
   ],
-  "basePath": "/api/v1/users",
+  "basePath": "/api/users/v1",
   "consumes": [
     "application/json"
   ],

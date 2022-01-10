@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/constant"
+	"github.com/ranxx/proxy/internal/event"
 	"github.com/ranxx/proxy/internal/model"
 	proto "github.com/ranxx/proxy/proto/msg/v1"
 	"github.com/ranxx/ztcp/conn"
@@ -29,8 +29,9 @@ var (
 // Extra ...
 type Extra struct {
 	HeartBeatChan chan *proto.HeartBeat
-	Account       string
-	Bind          bool
+	// Account       string
+	UserID int64
+	Bind   bool
 }
 
 // Service svc
@@ -68,8 +69,8 @@ func NewService(ip string, port int, opts ...server.Option) *Service {
 	opts = append(opts, server.WithGenConner(svc.genConner))
 
 	// 注册 observer 消息
-	config.Obs.SubscribeByTopicFunc("service_write_tcp_event", svc.serviceWriteTCPEvent)
-	config.Obs.SubscribeByTopicFunc("new_tunnel_tcp_event", svc.newTunnelTCPEvent)
+	event.SubscribeNewTCPConnectionEvent(svc.NewTCPConnectionEvent)
+	event.SubscribeNewTCPTunnelEvent(svc.NewTCPTunnelEvent)
 
 	svc.Server = server.NewServer("tcp", fmt.Sprintf("%s:%d", ip, port), opts...)
 
@@ -88,14 +89,17 @@ func (s *Service) Start() {
 
 // genConner
 func (s *Service) genConner(i int64, c net.Conn) (conner.Conner, error) {
-	extra := conn.WithExtra(&Extra{HeartBeatChan: make(chan *proto.HeartBeat)})
+	extra := conn.WithExtra(&Extra{
+		HeartBeatChan: make(chan *proto.HeartBeat),
+		UserID:        -1},
+	)
 
 	closeHandle := conn.WithCloseHandle(func(c conner.Conner) {
 		// 发送 del event
-		config.Obs.Publish("del_client_event", &model.Client{
+		event.PublishDelClientEvent(&model.Client{
 			ClientID: c.ID(),
 			Address:  c.RemoteAddr().String(),
-			Acccount: c.Extra().(*Extra).Account,
+			UserID:   c.Extra().(*Extra).UserID,
 		})
 	})
 
@@ -176,21 +180,23 @@ func (s *Service) ClientbindHandle() handle.Handler {
 
 		// 绑定，如果客户端不绑定，则不会处理其他信息
 		extra := r.C.Extra().(*Extra)
-		extra.Account = bind.Account
+		extra.UserID = bind.Id
 		extra.Bind = true
 
-		log.Println("service", "客户端绑定事件", r.C.RemoteAddr().String(), bind.Account)
+		log.Println("service", "客户端绑定事件", r.C.RemoteAddr().String(), bind.Id)
 
 		// 发送 event
-		config.Obs.Publish("new_client_event", &model.Client{
-			Acccount: bind.Account,
+		event.PublishNewClientEvent(&model.Client{
+			// TODO:
+			UserID:   bind.Id,
 			ClientID: r.C.ID(),
 			Address:  r.C.RemoteAddr().String(),
 		})
 	})
 }
 
-func (s *Service) serviceWriteTCPEvent(clientID int64, body *proto.TCPBody) {
+// NewTCPConnectionEvent 新增 tcp 连接
+func (s *Service) NewTCPConnectionEvent(clientID int64, body *proto.TCPBody) {
 	client := s.Server.GetManager().Get(clientID)
 	if client == nil {
 		// 没有该
@@ -207,27 +213,32 @@ func (s *Service) serviceWriteTCPEvent(clientID int64, body *proto.TCPBody) {
 	client.Writer().WriteValueWithID(constant.TCP, body)
 }
 
-func (s *Service) newTunnelTCPEvent(match *model.TransferMatch) {
-	s.NoticeClientsForNewTunnel(match.Acccount)
+// NewTCPTunnelEvent 新增 tcp tunnel 消息
+func (s *Service) NewTCPTunnelEvent(match ...*model.Tunnel) {
+	id := make([]int64, 0, len(match))
+	for _, v := range match {
+		id = append(id, v.UserID)
+	}
+	s.NoticeClientsForNewTunnel(id...)
 }
 
 // NoticeClientsForNewTunnel 新隧道 client 通知
-func (s *Service) NoticeClientsForNewTunnel(accounts ...string) {
-	accountMap := map[string]bool{}
+func (s *Service) NoticeClientsForNewTunnel(accounts ...int64) {
+	accountMap := map[int64]bool{}
 	for _, account := range accounts {
 		accountMap[account] = true
 	}
 	items := []*model.Client{}
 	s.GetManager().Range(func(c conner.Conner) error {
 		extra := c.Extra().(*Extra)
-		if len(extra.Account) <= 0 {
+		if extra.UserID < 0 {
 			return nil
 		}
-		if len(accounts) > 0 && !accountMap[extra.Account] {
+		if len(accounts) > 0 && !accountMap[extra.UserID] {
 			return nil
 		}
 		items = append(items, &model.Client{
-			Acccount: extra.Account,
+			UserID:   extra.UserID,
 			ClientID: c.ID(),
 			Address:  c.RemoteAddr().String(),
 		})
@@ -236,5 +247,5 @@ func (s *Service) NoticeClientsForNewTunnel(accounts ...string) {
 	if len(items) <= 0 {
 		return
 	}
-	config.Obs.Publish("new_client_events", items)
+	event.PublishBatchNewClientEvent(items)
 }

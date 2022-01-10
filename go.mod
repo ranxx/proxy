@@ -18,10 +18,11 @@ require (
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/ranxx/observer v0.0.0-20211229065005-3bdd5f9deb1f
-	github.com/ranxx/ztcp v0.0.0-20211229061011-7a59f9f991c0
+	github.com/ranxx/observer v0.0.0-20220110020712-1f999d7621dd
+	github.com/ranxx/ztcp v0.0.0-20220110081733-366905f5798b
 	github.com/spf13/cobra v1.3.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	nhooyr.io/websocket v1.8.7
 )
 
 require (
@@ -35,6 +36,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/klauspost/compress v1.10.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -52,6 +54,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/ranxx/ztcp => ../ztcp
+// replace github.com/ranxx/ztcp => ../ztcp
 
 // replace github.com/ranxx/observer => ../observer

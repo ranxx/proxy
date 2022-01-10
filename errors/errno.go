@@ -13,6 +13,9 @@ const (
 	// 密码错误
 	ErrPasswd = (ErrNumber)(10401)
 
+	// 没有权限
+	ErrPermissionDenied = (ErrNumber)(10403)
+
 	// 不存在
 	ErrNotFound = (ErrNumber)(10404)
 )

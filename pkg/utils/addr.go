@@ -5,11 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ranxx/proxy/internal/model"
 	proto "github.com/ranxx/proxy/proto/msg/v1"
 )
 
 // TunnelAddrInfo ...
-func TunnelAddrInfo(laddr, raddr *proto.Addr) string {
+func TunnelAddrInfo(laddr, raddr *model.Addr) string {
 	return fmt.Sprintf("%s:%d -> %s:%d", laddr.Ip, laddr.Port, raddr.Ip, raddr.Port)
 }
 

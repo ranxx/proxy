@@ -78,5 +78,5 @@ message HeartBeat {
 
 message ClientBind {
     // 绑定的账户
-    string account = 1;
+    int64 id = 1;
 }

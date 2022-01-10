@@ -4,7 +4,8 @@ package model
 type Client struct {
 	Base
 
-	Acccount string `json:"account"`
+	UserID int64 `json:"user_id"`
+	// Account  string `json:"account"`
 	ClientID int64  `json:"client_id"`
 	Address  string `json:"address"`
 }
