@@ -35,13 +35,13 @@ type Server struct {
 
 // Auth auth
 type Auth struct {
-	Key string `json:"key" yaml:"key"`
+	Key            string `json:"key" yaml:"key"`
+	ExpireInterval int64  `json:"expireInterval" yaml:"expireInterval"`
 }
 
 // Client 客户端配置
 type Client struct {
-	UserID int64 `json:"user_id" yaml:"user_id"`
-	// Account string `json:"account" yaml:"account"`
+	UserID int64 `json:"userId" yaml:"userId"`
 }
 
 // Tunnel 隧道

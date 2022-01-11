@@ -51,7 +51,6 @@ message HTTPBody {
 }
 
 message TCPBody {
-    // string addr  = 1;
     int64 rid    = 1;
     Addr  laddr  = 2;
     Addr  raddr  = 3;
@@ -68,8 +67,8 @@ message TransferBind {
 // 连接错误请求 
 message ErrorBody {
     string laddr = 1;
-    string raddr   = 2;
-    string err      = 3;
+    string raddr = 2;
+    string err   = 3;
 }
 
 message HeartBeat {

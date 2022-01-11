@@ -66,7 +66,7 @@ func (u *Users) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, erro
 
 	token, err := jwt.Generate(key, &jwt.Claim{
 		StandardClaims: gjwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(config.Cfg.Auth.ExpireInterval) * time.Second).Unix(),
 			Issuer:    "proxy",
 		},
 		UserID:   user.ID,

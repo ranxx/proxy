@@ -378,7 +378,6 @@ func (m *HTTPBody) GetHeader() []*Header {
 }
 
 type TCPBody struct {
-	// string addr  = 1;
 	Rid   int64  `protobuf:"varint,1,opt,name=rid,proto3" json:"rid,omitempty"`
 	Laddr *Addr  `protobuf:"bytes,2,opt,name=laddr,proto3" json:"laddr,omitempty"`
 	Raddr *Addr  `protobuf:"bytes,3,opt,name=raddr,proto3" json:"raddr,omitempty"`

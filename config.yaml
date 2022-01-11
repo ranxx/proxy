@@ -8,9 +8,10 @@ server:
 
 auth:
   key: axingjwt12341
+  expireInterval: 86400
 
 client:
-  user_id: 1
+  userId: 1
 
 http:
   port: 13333
