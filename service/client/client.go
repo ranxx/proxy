@@ -43,6 +43,7 @@ func clientRouters(c *Client) *router.Root {
 // 具有重连机制，重连之后所有连接会全部断开
 type Client struct {
 	logPrefix string
+	localPort int
 	ip        string
 	port      int
 	conn      conner.Conner
@@ -51,9 +52,10 @@ type Client struct {
 }
 
 // NewClient ...
-func NewClient(ip string, port int, opts ...conn.Option) *Client {
+func NewClient(localPort int, ip string, port int, opts ...conn.Option) *Client {
 	return &Client{
 		logPrefix: "client",
+		localPort: localPort,
 		ip:        ip,
 		port:      port,
 		once:      new(sync.Once),
@@ -86,6 +88,9 @@ func (c *Client) Start() error {
 
 func (c *Client) dail() (net.Conn, error) {
 	dial := net.Dialer{Timeout: time.Second * 10}
+	if c.localPort > 0 {
+		dial.LocalAddr = &net.TCPAddr{IP: net.IPv4zero, Port: c.localPort}
+	}
 	conn, err := dial.Dial("tcp", fmt.Sprintf("%s:%d", c.ip, c.port))
 	return conn, err
 }

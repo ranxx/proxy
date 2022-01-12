@@ -13,7 +13,7 @@ import (
 // Tunnels users
 type Tunnels interface {
 	// 列表
-	List(ctx context.Context, account string, status []model.TunnelStatus, offset, limit int64) ([]*model.Tunnel, int64, error)
+	List(ctx context.Context, userID int64, status []model.TunnelStatus, offset, limit int64) ([]*model.Tunnel, int64, error)
 
 	// 创建
 	Create(ctx context.Context, items ...*model.Tunnel) error
@@ -37,14 +37,14 @@ type localTunnels struct {
 	db *gorm.DB
 }
 
-func (l *localTunnels) List(ctx context.Context, account string, status []model.TunnelStatus, offset, limit int64) ([]*model.Tunnel, int64, error) {
+func (l *localTunnels) List(ctx context.Context, userID int64, status []model.TunnelStatus, offset, limit int64) ([]*model.Tunnel, int64, error) {
 	items := make([]*model.Tunnel, 0, 10)
 	total := int64(0)
 
 	db := utils.Pager(l.db.Model(&model.Tunnel{}), offset, limit)
 
-	if len(account) > 0 {
-		db = db.Where("account = ?", account)
+	if userID >= 0 {
+		db = db.Where("user_id = ?", userID)
 	}
 
 	if len(status) > 0 {
@@ -63,7 +63,6 @@ func (l *localTunnels) List(ctx context.Context, account string, status []model.
 }
 
 func (l *localTunnels) Create(ctx context.Context, items ...*model.Tunnel) error {
-	// 加锁
 	return l.db.Model(&model.Tunnel{}).Create(items).Error
 }
 

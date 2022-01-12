@@ -25,22 +25,66 @@ service Clients {
   // 客户端列表
   rpc ListClient (ListClientReq) returns (ListClientRsp) {
     option (google.api.http) = {
-      get: "/client"
+      get: "/list"
     };
     option (options.openapiv2_operation) = {
-      tags: "客户端"
+      tags: "客户端列表"
+    };
+  }
+
+  // 停止
+  rpc StopClient (StopClientReq) returns (StopClientRsp) {
+    option (google.api.http) = {
+      put: "/stop/{id}"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "停止"
+    };
+  }
+
+  // 删除
+  rpc DeleteClient (DeleteClientReq) returns (DeleteClientRsp) {
+    option (google.api.http) = {
+      delete: "/client/{id}"
+    };
+    option (options.openapiv2_operation) = {
+      tags: "删除"
     };
   }
 }
 
-message Client {
-  int32  id = 1;
-  string machine = 2;
-  repeated string account = 3;
+enum ClientStatus {
+  _cilents = 0;
+  // 停止
+  Stop = 1;
+  // 运行中
+  Run = 2;
 }
 
-message ListClientReq {}
+message Client {
+  int64  id = 1;
+  string machine = 2;
+  ClientStatus status = 3;
+}
+
+message ListClientReq {
+  int64 offset = 1;
+  int64 limit = 2;
+}
 
 message ListClientRsp {
-  repeated Client items = 1;
+  int64 total = 1;
+  repeated Client items = 2;
 }
+
+message StopClientReq {
+  int64 id = 1;
+}
+
+message StopClientRsp {}
+
+message DeleteClientReq {
+  int64 id = 1;
+}
+
+message DeleteClientRsp {}

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ranxx/proxy/apiserver/clients"
 	"github.com/ranxx/proxy/apiserver/tunnels"
 	"github.com/ranxx/proxy/apiserver/users"
 	websocket "github.com/ranxx/proxy/apiserver/ws"
@@ -45,5 +46,12 @@ func Router() *gin.Engine {
 		tunnelsV1.DELETE("/tunnel/:id", middleware.EncodeGinResponse(tunnels.Delete).Gin)
 	}
 
+	// /clients/v1
+	clientsV1 := api.Group("/clients/v1", middleware.EncodeGinMiddle(middleware.Auth).Gin)
+	{
+		clientsV1.GET("/list", middleware.EncodeGinResponse(clients.List).Gin)
+		clientsV1.PUT("/stop/:id", middleware.EncodeGinResponse(clients.Stop).Gin)
+		clientsV1.DELETE("/client/:id", middleware.EncodeGinResponse(clients.Delete).Gin)
+	}
 	return engine
 }

@@ -2,74 +2,118 @@ package clients
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ranxx/proxy/clients/store"
+	"github.com/ranxx/proxy/config"
+	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/errors"
+	"github.com/ranxx/proxy/internal/event"
 	"github.com/ranxx/proxy/internal/model"
-	v1 "github.com/ranxx/proxy/proto/users/v1"
+	"github.com/ranxx/proxy/pkg/jwt"
+	"github.com/ranxx/proxy/pkg/token"
+	v1 "github.com/ranxx/proxy/proto/clients/v1"
 	"google.golang.org/grpc"
 )
+
+func init() {
+	event.SubscribeNewClientEvent(func(c *model.Client) {
+		c.Status = model.ClientStatus(v1.ClientStatus_Run)
+		store.NewClients().Update(context.Background(), c)
+	})
+	event.SubscribeStopClientEvent(func(c *model.Client) {
+		c.Status = model.ClientStatus(v1.ClientStatus_Stop)
+		store.NewClients().Update(context.Background(), c)
+	})
+	event.SubscribeExitEvent(func() {
+		store.NewClients().StopAll(context.TODO())
+	})
+}
 
 // Clients 用户
 type Clients struct {
 	local store.Clients
 }
 
-// NewUsers ...
-func NewUsers(local store.Clients) *Clients {
+// NewClients ...
+func NewClients(local store.Clients) *Clients {
 	return &Clients{local: local}
 }
 
-// // ProvideHTTP http
-// func (u *Clients) ProvideHTTP(router *mux.Router) {
-// 	// 提供 router
-// 	h := svc.MakeHTTPHandler(svc.Endpoints{
-// 		RegisterEndpoint: svc.MakeRegisterEndpoint(u),
-// 		LoginEndpoint:    svc.MakeLoginEndpoint(u),
-// 	},
-// 		components.EncodeHTTPGenericResponse,
-// 		httptransport.ServerErrorEncoder(components.ServerErrorEncoder),
-// 	)
-// 	router.PathPrefix("/clients/v1").Handler(http.StripPrefix("/api/clients/v1", h))
-// }
-
 // ProvideGRPC grpc
-func (u *Clients) ProvideGRPC(server *grpc.Server) {
-	v1.RegisterUsersServer(server, u)
+func (c *Clients) ProvideGRPC(server *grpc.Server) {
+	v1.RegisterClientsServer(server, c)
 }
 
-// Register 注册
-func (u *Clients) Register(ctx context.Context, req *v1.RegisterReq) (*v1.RegisterRsp, error) {
-	// 本地
-	_, exists, err := u.local.Get(ctx, req.Email)
+// ListClient 客户端列表
+func (c *Clients) ListClient(ctx context.Context, req *v1.ListClientReq) (*v1.ListClientRsp, error) {
+	claim := token.GetToken(ctx)
+
+	items, total, err := c.local.List(ctx, claim.UserID, nil, req.Offset, req.Limit)
 	if err != nil {
 		return nil, err
 	}
 
-	if exists {
-		return nil, errors.NewErrCode(errors.ErrExists, "用户已存在")
+	resp := &v1.ListClientRsp{
+		Total: total,
+		Items: make([]*v1.Client, 0, len(items)),
 	}
 
-	// 不存在，则创建
-	return &v1.RegisterRsp{}, u.local.Create(ctx, &model.User{Email: req.Email, Passwd: req.Passwd})
+	for _, v := range items {
+		resp.Items = append(resp.Items, &v1.Client{
+			Id:      v.ID,
+			Machine: v.Machine,
+			Status:  v1.ClientStatus(v.Status),
+		})
+	}
+
+	return resp, nil
 }
 
-// Login 登录
-func (u *Clients) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, error) {
-	// 本地
-	user, exists, err := u.local.Get(ctx, req.Email)
+func (c *Clients) get(ctx context.Context, claim *jwt.Claim, id int64) (*model.Client, error) {
+	item, exist, err := c.local.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("不存在的client")
+	}
+
+	if item.UserID != claim.UserID {
+		return nil, errors.NewErrCode(errors.ErrPermissionDenied, "没有权限")
+	}
+
+	return item, nil
+}
+
+// StopClient 停止
+func (c *Clients) StopClient(ctx context.Context, req *v1.StopClientReq) (*v1.StopClientRsp, error) {
+	claim := token.GetToken(ctx)
+
+	item, err := c.get(ctx, claim, req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	if !exists {
-		return nil, errors.NewErrCode(errors.ErrNotFound, "用户不存在")
+	config.GetObs().SyncPublish(constant.StopClientEvent, item)
+
+	item.Status = model.ClientStatus(v1.ClientStatus_Stop)
+	// 修改状态
+	return &v1.StopClientRsp{}, c.local.Update(ctx, item)
+}
+
+// DeleteClient 删除
+func (c *Clients) DeleteClient(ctx context.Context, req *v1.DeleteClientReq) (*v1.DeleteClientRsp, error) {
+	claim := token.GetToken(ctx)
+
+	item, err := c.get(ctx, claim, req.Id)
+	if err != nil {
+		return nil, err
 	}
 
-	// 比对 passwd
-	if user.Passwd != req.Passwd {
-		return nil, errors.NewErrCode(errors.ErrPasswd, "密码错误")
+	if item.Status == model.ClientStatus(v1.ClientStatus_Run) {
+		return nil, fmt.Errorf("不能删除正在运行的client")
 	}
 
-	return &v1.LoginRsp{Token: "xxx"}, nil
+	return &v1.DeleteClientRsp{}, c.local.Delete(ctx, req.Id)
 }

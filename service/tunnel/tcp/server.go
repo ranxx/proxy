@@ -225,27 +225,27 @@ func (s *Server) newClientEvent(cli *model.Client) {
 	s.rwlock.Lock()
 	defer s.rwlock.Unlock()
 	prefix := s.config.Match.MachinePrefix
-	if strings.HasPrefix(cli.Address, prefix) {
+	if strings.HasPrefix(cli.Machine, prefix) {
 		if s.clientID >= 0 {
-			s.clientIds = append(s.clientIds, cli.ClientID)
-			log.Println(s.logPrefix, "client", "新增绑定", cli.ClientID)
+			s.clientIds = append(s.clientIds, cli.ID)
+			log.Println(s.logPrefix, "client", "新增绑定", cli.ID)
 			return
 		}
-		s.clientID = cli.ClientID
+		s.clientID = cli.ID
 		log.Println(s.logPrefix, "client", "绑定", s.clientID)
 		return
 	}
 
 	for _, v := range s.config.Match.Machines {
-		if v != cli.Address {
+		if v != cli.Machine {
 			continue
 		}
 		if s.clientID >= 0 {
-			s.clientIds = append(s.clientIds, cli.ClientID)
-			log.Println(s.logPrefix, "client", "新增绑定", cli.ClientID)
+			s.clientIds = append(s.clientIds, cli.ID)
+			log.Println(s.logPrefix, "client", "新增绑定", cli.ID)
 			continue
 		}
-		s.clientID = cli.ClientID
+		s.clientID = cli.ID
 		log.Println(s.logPrefix, "client", "绑定切换", s.clientID)
 	}
 }
@@ -256,7 +256,7 @@ func (s *Server) DelClientEvent(cli *model.Client) {
 }
 
 func (s *Server) delClientEvent(cli *model.Client) {
-	if s.clientID == cli.ClientID {
+	if s.clientID == cli.ID {
 		log.Println(s.logPrefix, "client", "解除当前绑定", s.clientID)
 		s.clientID = -1
 	}
@@ -265,7 +265,7 @@ func (s *Server) delClientEvent(cli *model.Client) {
 	clientIds := make([]int64, 0, len(s.clientIds))
 	del := make([]int64, 0, len(s.clientIds))
 	for _, id := range s.clientIds {
-		if id != cli.ClientID {
+		if id != cli.ID {
 			clientIds = append(clientIds, id)
 		}
 		del = append(del, id)

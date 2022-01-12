@@ -42,6 +42,7 @@ type Auth struct {
 // Client 客户端配置
 type Client struct {
 	UserID int64 `json:"userId" yaml:"userId"`
+	Port   int   `json:"port" yaml:"port"`
 }
 
 // Tunnel 隧道
@@ -136,6 +137,11 @@ func GetConfig() *Config {
 // GetDB db
 func GetDB() *gorm.DB {
 	return _db
+}
+
+// GetObs obs
+func GetObs() observer.Observer {
+	return Obs
 }
 
 // Init init

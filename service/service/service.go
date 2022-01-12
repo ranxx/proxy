@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ranxx/proxy/clients/store"
 	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/internal/event"
 	"github.com/ranxx/proxy/internal/model"
@@ -28,10 +29,9 @@ var (
 
 // Extra ...
 type Extra struct {
+	model.Client
 	HeartBeatChan chan *proto.HeartBeat
-	// Account       string
-	UserID int64
-	Bind   bool
+	Bind          bool
 }
 
 // Service svc
@@ -71,6 +71,7 @@ func NewService(ip string, port int, opts ...server.Option) *Service {
 	// 注册 observer 消息
 	event.SubscribeNewTCPConnectionEvent(svc.NewTCPConnectionEvent)
 	event.SubscribeNewTCPTunnelEvent(svc.NewTCPTunnelEvent)
+	event.SubscribeStopClientEvent(svc.StopClientEvent)
 
 	svc.Server = server.NewServer("tcp", fmt.Sprintf("%s:%d", ip, port), opts...)
 
@@ -89,28 +90,43 @@ func (s *Service) Start() {
 
 // genConner
 func (s *Service) genConner(i int64, c net.Conn) (conner.Conner, error) {
-	extra := conn.WithExtra(&Extra{
-		HeartBeatChan: make(chan *proto.HeartBeat),
-		UserID:        -1},
-	)
+	// 查询数据库应该是多少id，如果没有id，则先进行新增
+	items, _, err := store.NewClients().List(context.TODO(), -1, []string{c.RemoteAddr().String()}, 0, -1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(items) <= 0 {
+		//  新建
+		items = []*model.Client{
+			{
+				UserID:  -1,
+				Machine: c.RemoteAddr().String(),
+			},
+		}
+		if err := store.NewClients().Create(context.TODO(), items...); err != nil {
+			return nil, err
+		}
+	}
 
 	closeHandle := conn.WithCloseHandle(func(c conner.Conner) {
 		// 发送 del event
 		event.PublishDelClientEvent(&model.Client{
-			ClientID: c.ID(),
-			Address:  c.RemoteAddr().String(),
-			UserID:   c.Extra().(*Extra).UserID,
+			Base:    model.Base{ID: c.ID()},
+			Machine: c.RemoteAddr().String(),
+			UserID:  c.Extra().(*Extra).UserID,
 		})
 	})
 
-	conner := conn.NewConn(i, c, extra, closeHandle, conn.WithDispatcher(dispatch.DefaultDispatcher(serviceRouters(s))))
+	extra := conn.WithExtra(&Extra{
+		Client:        *items[0],
+		HeartBeatChan: make(chan *proto.HeartBeat),
+	})
+
+	conner := conn.NewConn(items[0].ID, c, extra, closeHandle, conn.WithDispatcher(dispatch.DefaultDispatcher(serviceRouters(s))))
 
 	// 开启 心跳检测
 	go s.HeartBeatCheck(conner)
-
-	s.rwlock.Lock()
-	defer s.rwlock.Unlock()
-	// s.unbind[i] = conner
 
 	return conner, nil
 }
@@ -186,12 +202,7 @@ func (s *Service) ClientbindHandle() handle.Handler {
 		log.Println("service", "客户端绑定事件", r.C.RemoteAddr().String(), bind.Id)
 
 		// 发送 event
-		event.PublishNewClientEvent(&model.Client{
-			// TODO:
-			UserID:   bind.Id,
-			ClientID: r.C.ID(),
-			Address:  r.C.RemoteAddr().String(),
-		})
+		event.PublishNewClientEvent(&extra.Client)
 	})
 }
 
@@ -237,15 +248,19 @@ func (s *Service) NoticeClientsForNewTunnel(accounts ...int64) {
 		if len(accounts) > 0 && !accountMap[extra.UserID] {
 			return nil
 		}
-		items = append(items, &model.Client{
-			UserID:   extra.UserID,
-			ClientID: c.ID(),
-			Address:  c.RemoteAddr().String(),
-		})
+		items = append(items, &extra.Client)
 		return nil
 	})
 	if len(items) <= 0 {
 		return
 	}
 	event.PublishBatchNewClientEvent(items)
+}
+
+// StopClientEvent 停止 client 事件
+func (s *Service) StopClientEvent(c *model.Client) {
+	if conn := s.GetManager().Get(c.ID); conn != nil {
+		conn.Close()
+		s.GetManager().Del(c.ID)
+	}
 }

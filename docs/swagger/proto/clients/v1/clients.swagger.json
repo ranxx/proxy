@@ -21,7 +21,39 @@
     "application/json"
   ],
   "paths": {
-    "/client": {
+    "/client/{id}": {
+      "delete": {
+        "summary": "删除",
+        "operationId": "Clients_DeleteClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteClientRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "删除"
+        ]
+      }
+    },
+    "/list": {
       "get": {
         "summary": "客户端列表",
         "operationId": "Clients_ListClient",
@@ -39,8 +71,56 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
         "tags": [
-          "客户端"
+          "客户端列表"
+        ]
+      }
+    },
+    "/stop/{id}": {
+      "put": {
+        "summary": "停止",
+        "operationId": "Clients_StopClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StopClientRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "停止"
         ]
       }
     }
@@ -77,23 +157,37 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string",
+          "format": "int64"
         },
         "machine": {
           "type": "string"
         },
-        "account": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "status": {
+          "$ref": "#/definitions/v1ClientStatus"
         }
       }
+    },
+    "v1ClientStatus": {
+      "type": "string",
+      "enum": [
+        "_cilents",
+        "Stop",
+        "Run"
+      ],
+      "default": "_cilents",
+      "title": "- Stop: 停止\n - Run: 运行中"
+    },
+    "v1DeleteClientRsp": {
+      "type": "object"
     },
     "v1ListClientRsp": {
       "type": "object",
       "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
         "items": {
           "type": "array",
           "items": {
@@ -101,6 +195,9 @@
           }
         }
       }
+    },
+    "v1StopClientRsp": {
+      "type": "object"
     }
   }
 }

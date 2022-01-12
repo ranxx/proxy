@@ -17,6 +17,16 @@ func PublishNewClientEvent(body *model.Client) {
 	config.Obs.Publish(constant.NewClientEvent, body)
 }
 
+// SubscribeStopClientEvent 订阅停止 client 事件
+func SubscribeStopClientEvent(fc func(*model.Client)) func() {
+	return config.GetObs().SubscribeByTopicFunc(constant.StopClientEvent, fc)
+}
+
+// PublishStopClientEvent 发布停止 client 事件
+func PublishStopClientEvent(body *model.Client) {
+	config.GetObs().Publish(constant.StopClientEvent, body)
+}
+
 // SubscribeBatchNewClientEvent 订阅批量新增 client 事件
 func SubscribeBatchNewClientEvent(fc func([]*model.Client)) func() {
 	return config.Obs.SubscribeByTopicFunc(constant.BatchNewClientEvent, fc)
@@ -45,4 +55,9 @@ func SubscribeCreateTCPTunnelClientEvent(fc func(body *msg.TCPBody)) {
 // PublishCreateTCPTunnelClientEvent 发布创建 tcp tunnel client 事件
 func PublishCreateTCPTunnelClientEvent(body *msg.TCPBody) {
 	config.Obs.Publish(constant.CreateTCPTunnelClientEvent, body)
+}
+
+// SubscribeExitEvent 退出
+func SubscribeExitEvent(fc func()) {
+	config.GetObs().SubscribeByTopicFunc(constant.ExitEvent, fc)
 }

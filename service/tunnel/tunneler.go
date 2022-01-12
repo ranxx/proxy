@@ -82,7 +82,7 @@ func (m *Manager) Range(fc func(t Tunneler) error) {
 
 // initTunnels 初始化
 func (m *Manager) initTunnels() {
-	list, _, err := store.NewTunnels().List(context.Background(), "", []model.TunnelStatus{model.TunnelStatus(tunnelsV1.Status_Run)}, 0, -1)
+	list, _, err := store.NewTunnels().List(context.Background(), -1, []model.TunnelStatus{model.TunnelStatus(tunnelsV1.Status_Run)}, 0, -1)
 	if err != nil {
 		fmt.Println("启动失败")
 	}

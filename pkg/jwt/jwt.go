@@ -12,8 +12,7 @@ var DefaultMethod = jwt.SigningMethodHS256
 // Claim ...
 type Claim struct {
 	jwt.StandardClaims
-	UserID   int64  `json:"userId,omitempty"`
-	Acccount string `json:"account,omitempty"`
+	UserID int64 `json:"userId,omitempty"`
 }
 
 // Parse ...

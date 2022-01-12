@@ -69,8 +69,7 @@ func (u *Users) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, erro
 			ExpiresAt: time.Now().Add(time.Duration(config.Cfg.Auth.ExpireInterval) * time.Second).Unix(),
 			Issuer:    "proxy",
 		},
-		UserID:   user.ID,
-		Acccount: user.Email,
+		UserID: user.ID,
 	}, nil)
 
 	return &v1.LoginRsp{Token: token}, nil

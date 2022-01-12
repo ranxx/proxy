@@ -12,6 +12,7 @@ auth:
 
 client:
   userId: 1
+  port: 12361
 
 http:
   port: 13333

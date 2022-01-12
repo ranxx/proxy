@@ -37,7 +37,11 @@ eg:
 			if !cmd.Flag("port").Changed {
 				*port = config.Cfg.Server.Port
 			}
-			srv := client.NewClient(*ip, *port)
+
+			lport := config.GetConfig().Client.Port
+
+			// if config.GetConfig().
+			srv := client.NewClient(lport, *ip, *port)
 			go srv.Start()
 			utils.IgnoreSignal(func() {
 				// srv.Close()

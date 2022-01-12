@@ -7,6 +7,7 @@ import (
 	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/errors"
+	"github.com/ranxx/proxy/internal/event"
 	"github.com/ranxx/proxy/internal/model"
 	"github.com/ranxx/proxy/pkg/jwt"
 	"github.com/ranxx/proxy/pkg/token"
@@ -15,6 +16,10 @@ import (
 	"github.com/ranxx/proxy/tunnels/store"
 	"google.golang.org/grpc"
 )
+
+func init() {
+	event.SubscribeNewTCPTunnelEvent(func(t ...*model.Tunnel) {})
+}
 
 // Tunnels 用户
 type Tunnels struct {
@@ -35,7 +40,7 @@ func (t *Tunnels) ProvideGRPC(server *grpc.Server) {
 func (t *Tunnels) ListTunnel(ctx context.Context, req *v1.ListTunnelReq) (*v1.ListTunnelRsp, error) {
 	claim := token.GetToken(ctx)
 
-	items, total, err := t.local.List(ctx, claim.Acccount, nil, 0, 10)
+	items, total, err := t.local.List(ctx, claim.UserID, nil, 0, 10)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +65,7 @@ func (t *Tunnels) AddTunnel(ctx context.Context, req *v1.AddTunnelReq) (*v1.AddT
 
 	// 重复的
 	// 是否有重复的, 外网端口重复
-	items, _, err := t.local.List(ctx, claim.Acccount, nil, 0, -1)
+	items, _, err := t.local.List(ctx, claim.UserID, nil, 0, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -148,8 +153,7 @@ func (t *Tunnels) Stop(ctx context.Context, req *v1.StopTunnelReq) (*v1.StopTunn
 		return &v1.StopTunnelRsp{}, nil
 	}
 
-	config.Obs.SyncPublishWithRet(constant.StopTCPTunnelEvent, func() {
-	}, tunnel.ID)
+	config.Obs.SyncPublishWithRet(constant.StopTCPTunnelEvent, func() {}, tunnel.ID)
 
 	t.local.Status(ctx, req.Id, model.TunnelStatus(v1.Status_Stop))
 
