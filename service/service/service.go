@@ -181,6 +181,8 @@ func (s *Service) HeartBeatCheck(c conner.Conner) {
 		s.Server.Del(c.ID())
 		// 关闭
 		c.Close()
+		extra := c.Extra().(*Extra)
+		event.PublishStopClientEvent(&extra.Client)
 		return
 	}
 }

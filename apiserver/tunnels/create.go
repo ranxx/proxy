@@ -10,11 +10,11 @@ import (
 
 // Create 创建
 func Create(ctx *gin.Context) (interface{}, error) {
-	req := new(pb.ListTunnelReq)
+	req := new(pb.AddTunnelReq)
 
 	if err := ctx.BindJSON(req); err != nil {
 		return nil, errors.NewHTTPBadRequest(err.Error())
 	}
 
-	return tunnels.NewTunnels(store.NewTunnels()).ListTunnel(ctx, req)
+	return tunnels.NewTunnels(store.NewTunnels()).AddTunnel(ctx, req)
 }

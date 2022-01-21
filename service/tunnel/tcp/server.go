@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/internal/event"
 	"github.com/ranxx/proxy/internal/model"
@@ -59,7 +60,7 @@ func NewServer(c model.Tunnel, logPrefix string) *Server {
 func (s *Server) genConner(id int64, c net.Conn) (conner.Conner, error) {
 	// 如果没有client id，不允许连接
 	if s.clientID < 0 {
-		log.Println(s.logPrefix, "conn", "未绑定client", "连接失败")
+		log.Println(s.logPrefix, "conn", "未绑定 client", "连接失败")
 		c.Close()
 		return nil, fmt.Errorf("不允许连接")
 	}
@@ -135,7 +136,7 @@ func (s *Server) noticeClientBind(conner conner.Conner) {
 	body := &msg.TCPBody{
 		Rid:   conner.ID(),
 		Laddr: (*msg.Addr)(s.config.Raddr),
-		Raddr: &msg.Addr{Ip: s.config.Laddr.Ip, Port: s.config.Laddr.Port},
+		Raddr: &msg.Addr{Ip: config.GetConfig().Server.IP, Port: s.config.Laddr.Port},
 		Body:  nil,
 		Type:  0,
 	}
@@ -172,35 +173,6 @@ func (s *Server) Close() {
 func (s *Server) Info() model.Tunnel {
 	return s.config
 }
-
-// // Close 关闭
-// func (s *Server) Close() {
-// 	s.once.Do(func() {
-// 		s.rws.rwlock.Lock()
-// 		defer s.rws.rwlock.Unlock()
-// 		for _, v := range s.rws.rws {
-// 			if v == nil || v.Conn == nil {
-// 				continue
-// 			}
-// 			v.Conn.Close()
-// 		}
-// 		if s.listen != nil {
-// 			s.listen.Close()
-// 		}
-// 	})
-// }
-
-// // Info ...
-// func (s *Server) Info() model.TransferInfo {
-// 	return model.TransferInfo{
-// 		TunnelConfig: s.config,
-// 	}
-// }
-
-// // Account ...
-// func (s *Server) Account() string {
-// 	return s.config.Match.Acccount
-// }
 
 // BatchNewClientEvent 新tunnel时，通知 client 事件
 func (s *Server) BatchNewClientEvent(clis []*model.Client) {

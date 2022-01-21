@@ -5,6 +5,7 @@ import (
 	"time"
 
 	// "github.com/ranxx/proxy/api"
+
 	"github.com/ranxx/proxy/config"
 	"github.com/ranxx/proxy/constant"
 	"github.com/ranxx/proxy/internal/bootstrap"
@@ -43,6 +44,11 @@ eg:
 
 			config.Init()
 
+			// 自动开启 api
+			go func() {
+				bootstrap.Start()
+			}()
+
 			// 开启 tunnel
 			go func() {
 				time.Sleep(time.Second * 1)
@@ -51,11 +57,6 @@ eg:
 
 			srv := service.NewService("", *port)
 			go srv.Start()
-
-			// 自动开启 api
-			go func() {
-				bootstrap.Start()
-			}()
 
 			utils.IgnoreSignal(func() {
 				srv.Close()
